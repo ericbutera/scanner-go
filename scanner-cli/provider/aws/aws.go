@@ -5,23 +5,29 @@ package aws
 
 import (
 	"context"
-	"encoding/json"
 	"log"
+
 	appconfig "scanner-go/config"
+	_storage "scanner-go/storage" // TODO fix name
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func Scan(app_config appconfig.AppConfig) {
+func Scan(app_config appconfig.AppConfig, store *_storage.Storage) error {
 	aws_cfg, err := NewCredsFromAppConfig(app_config)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("AWS credential error: %s", err)
+		return err
 	}
 
-	GetS3(aws_cfg)
-	// GetS3(sess)
+	// individual services should not stop the scan
+	if err = GetS3(aws_cfg, store); err != nil {
+		log.Print("S3 error ", err)
+	}
+
+	return nil
 }
 
 func NewCredsFromAppConfig(app_config appconfig.AppConfig) (aws.Config, error) {
@@ -31,6 +37,29 @@ func NewCredsFromAppConfig(app_config appconfig.AppConfig) (aws.Config, error) {
 	// Load the Shared AWS Configuration (~/.aws/config)
 	aws_cfg, err := config.LoadDefaultConfig(context.TODO(), region)
 	return aws_cfg, err
+}
+
+func GetS3(cfg aws.Config, store *_storage.Storage) error {
+	// Create an Amazon S3 service client
+	// Get the first page of results for ListObjectsV2 for a bucket
+	client := s3.NewFromConfig(cfg)
+	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
+		Bucket: aws.String("aws-scanner-go"),
+	})
+	if err != nil {
+		return err
+	}
+
+	// output={"CommonPrefixes":null,"Contents":[{"ChecksumAlgorithm":null,"ETag":"\"135..."","Key":"file-name.txt","LastModified":"2022-07-31T23:42:34Z","Owner":null,"Size":19,"StorageClass":"STANDARD"}],"ContinuationToken":null,"Delimiter":null,"EncodingType":"","IsTruncated":false,"KeyCount":1,"MaxKeys":1000,"Name":"bucket-name","NextContinuationToken":null,"Prefix":"","StartAfter":null,"ResultMetadata":{}}
+
+	log.Println("first page results:")
+	// for _, object := range output.Contents {
+	// 	log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
+	// }
+
+	store.Save(store.NewStorageData(output))
+
+	return nil
 }
 
 // TODO
@@ -44,34 +73,3 @@ func NewCredsFromAppConfig(app_config appconfig.AppConfig) (aws.Config, error) {
 // 	sess, err := session.NewSession(aws_config)
 // 	return *sess, err
 // }
-
-func GetS3(cfg aws.Config) {
-	// Create an Amazon S3 service client
-	// Get the first page of results for ListObjectsV2 for a bucket
-	client := s3.NewFromConfig(cfg)
-	output, err := client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
-		Bucket: aws.String("aws-scanner-go"),
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	SaveResponse(output)
-	// {"CommonPrefixes":null,"Contents":[{"ChecksumAlgorithm":null,"ETag":"\"135..."","Key":"file-name.txt","LastModified":"2022-07-31T23:42:34Z","Owner":null,"Size":19,"StorageClass":"STANDARD"}],"ContinuationToken":null,"Delimiter":null,"EncodingType":"","IsTruncated":false,"KeyCount":1,"MaxKeys":1000,"Name":"bucket-name","NextContinuationToken":null,"Prefix":"","StartAfter":null,"ResultMetadata":{}}
-
-	log.Println("first page results:")
-	for _, object := range output.Contents {
-		log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
-	}
-}
-
-func SaveResponse(v any) {
-	// Send to storage-api
-	// TODO save any struct to data lake for later analysis
-	json, err := json.Marshal(v)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println(string(json))
-}

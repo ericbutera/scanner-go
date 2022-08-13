@@ -6,48 +6,46 @@ import (
 	"context"
 	"log"
 	"scanner-go/config"
+	_storage "scanner-go/storage" // TODO fix name
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 )
 
-func Scan(app_config config.AppConfig) {
+func Scan(app_config config.AppConfig, store *_storage.Storage) error {
 	sub := app_config.AzureSubscriptionId
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	ctx := context.Background()
 
-	containerItems, err := listBlobContainer(sub, ctx, cred)
-	if err != nil {
-		log.Fatal(err)
+	if err := listBlobContainer(sub, ctx, cred, store); err != nil {
+		log.Printf("Azure Blob error %v", err)
 	}
-	log.Println("blob container list:")
-	for _, item := range containerItems {
-		log.Println("\t", *item.ID)
-	}
+
+	return nil
 }
 
-func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredential) (listItems []*armstorage.ListContainerItem, err error) {
+func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredential, store *_storage.Storage) error {
 	subscriptionID := sub // os.Getenv("AZURE_SUBSCRIPTION_ID")
 	resourceGroupName := "storage-resource-group"
 	storageAccountName := "ihasabucket"
 	blobContainerClient, err := armstorage.NewBlobContainersClient(subscriptionID, cred, nil)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	containerItemsPager := blobContainerClient.NewListPager(resourceGroupName, storageAccountName, nil)
 
-	listItems = make([]*armstorage.ListContainerItem, 0)
 	for containerItemsPager.More() {
 		pageResp, err := containerItemsPager.NextPage(ctx)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		listItems = append(listItems, pageResp.ListContainerItems.Value...)
+		store.Save(store.NewStorageData(pageResp))
 	}
-	return
+
+	return nil
 }

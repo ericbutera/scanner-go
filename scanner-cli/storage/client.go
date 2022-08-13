@@ -37,15 +37,15 @@ func (storage *Storage) Start() (string, error) {
 
 type StorageData struct {
 	ScanId string
-	Data   map[string]interface{}
+	Data   any
 }
 
-// func NewStorageData(storage *Storage, data map[string]interface{}{}) *StorageData {
-// 	return &StorageData{
-// 		ScanId: storage.ScanId,
-// 		Data:   map[string]interface{}{},
-// 	}
-// }
+func (storage *Storage) NewStorageData(data any) *StorageData {
+	return &StorageData{
+		ScanId: storage.ScanId,
+		Data:   data,
+	}
+}
 
 func (storage *Storage) Save(data *StorageData) (string, error) {
 	log.Print("saved")

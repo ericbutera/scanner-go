@@ -1,11 +1,17 @@
 package rest
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+type SaveRequest struct {
+	ScanId string
+	Data   any
+}
 
 func Docs(c *gin.Context) {
 	// TODO openapi
@@ -29,14 +35,10 @@ func Start(c *gin.Context) {
 	})
 }
 
-type StorageData struct {
-	ScanId string
-	Data   map[string]interface{}
-}
-
 func Save(c *gin.Context) {
 	id := c.Param("id")
-	var data StorageData
+	var data SaveRequest
+
 	if err := c.BindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "error parsing json",
@@ -44,6 +46,8 @@ func Save(c *gin.Context) {
 		})
 		return
 	}
+
+	log.Printf("saving scan %s %+v", id, data)
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "save",

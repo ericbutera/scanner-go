@@ -39,8 +39,8 @@ func main() {
 	// span.Finish(tracer.WithError(err))
 
 	gcp.Scan(conf, store)
-	aws.Scan(conf)
-	azure.Scan(conf)
+	aws.Scan(conf, store)
+	azure.Scan(conf, store)
 
 	store.End()
 }
