@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+// TODO create service specific entries
+
 type AppConfig struct {
 	Region              string
 	AccessKey           string `mapstructure:"access_key"`
@@ -14,17 +16,34 @@ type AppConfig struct {
 	GCPProjectId        string `mapstructure:"gcp_project_id"`
 	AzureSubscriptionId string `mapstructure:"azure_subscription_id"`
 
-	DataDog     bool   `mapstructure:"data_dog" default:"false"`
-	AppName     string `mapstructure:"app_name" default:"Storage-CLI"`
-	ServiceName string `mapstructure:"service_name" default:"storage-cli"`
-	Env         string `mapstructure:"env" default:"dev"`
-	Version     string `mapstructure:"version" default:"0.0.1"`
+	// DataDog profiling; use ENV DD_API_KEY for the api key
+	DataDog     bool   `mapstructure:"data_dog"`
+	AppName     string `mapstructure:"app_name"`
+	ServiceName string `mapstructure:"service_name"`
+	Env         string `mapstructure:"env"`
+	Version     string `mapstructure:"version"`
+
+	Azure bool `mapstructure:"azure"`
+	Aws   bool `mapstructure:"aws"`
+	Gcp   bool `mapstructure:"gcp"`
+
+	StorageApiUrl string `mapstructure:"storage_api_url"`
 }
 
 func NewAppConfig(path *string) (AppConfig, error) {
 	viper.AddConfigPath(*path)
 	viper.SetConfigName("app.yaml")
 	viper.SetConfigType("yaml")
+
+	viper.SetDefault("storage_api_url", "http://localhost:8080")
+	viper.SetDefault("app_name", "Storage-CLI")
+	viper.SetDefault("service_name", "storage-cli")
+	viper.SetDefault("version", "0.0.1")
+	viper.SetDefault("data_dog", false)
+	viper.SetDefault("aws", false)
+	viper.SetDefault("azure", false)
+	viper.SetDefault("gcp", false)
+
 	read_err := viper.ReadInConfig()
 	if read_err != nil {
 		panic(fmt.Errorf("fatal error config file: %w", read_err))

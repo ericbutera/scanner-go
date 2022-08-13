@@ -16,6 +16,8 @@ import (
 )
 
 func Scan(app_config appconfig.AppConfig, store *_storage.Storage) error {
+	log.Print("Scan Aws")
+
 	aws_cfg, err := NewCredsFromAppConfig(app_config)
 	if err != nil {
 		log.Printf("AWS credential error: %s", err)

@@ -52,6 +52,7 @@ func Save(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "save",
 		"id":      id,
+		"jobId":   uuid.New(),
 	})
 }
 

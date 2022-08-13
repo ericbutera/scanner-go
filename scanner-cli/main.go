@@ -25,22 +25,28 @@ func main() {
 
 	profile(conf)
 
-	store := storage.NewStorage()
+	store := storage.NewStorage(conf.StorageApiUrl)
 
-	scan_id, err := store.Start()
-	if err != nil {
+	if err := store.Start(); err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("scan_id: %s\n", scan_id)
 
 	// TODO: learn how to make a wrapper https://github.com/DataDog/dd-trace-go/blob/v1.40.1/contrib/google.golang.org/api/api.go#L47
 	// span := tracer.StartSpan("scanner")
 	// defer span.Finish()
 	// span.Finish(tracer.WithError(err))
 
-	gcp.Scan(conf, store)
-	aws.Scan(conf, store)
-	azure.Scan(conf, store)
+	if conf.Gcp {
+		gcp.Scan(conf, store)
+	}
+
+	if conf.Aws {
+		aws.Scan(conf, store)
+	}
+
+	if conf.Azure {
+		azure.Scan(conf, store)
+	}
 
 	store.End()
 }

@@ -15,7 +15,10 @@ import (
 )
 
 func Scan(conf config.AppConfig, store *_storage.Storage) error {
+	log.Print("Scan GCP")
+
 	creds := option.WithCredentialsFile(conf.GCPServiceAccount)
+
 	fmt.Printf("creds %+v", creds)
 
 	// individual services will not stop the scan

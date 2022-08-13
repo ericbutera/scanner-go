@@ -13,23 +13,66 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 )
 
+type ScanAzure struct {
+	Config  *config.AppConfig
+	Store   *_storage.Storage
+	Sub     string
+	Context context.Context
+	_cred   *azidentity.DefaultAzureCredential
+}
+
+//func (scan *ScanAzure) NewScanAzure(app_config config.AppConfig, store *_storage.Storage) *ScanAzure {
+func NewScanAzure(app_config config.AppConfig, store *_storage.Storage) *ScanAzure {
+	//sub := app_config.AzureSubscriptionId
+	// cred, err := azidentity.NewDefaultAzureCredential(nil)
+	// if err != nil {
+	// 	return err
+	// }
+	//ctx := context.Background()
+
+	return &ScanAzure{
+		Config:  &app_config,
+		Store:   store,
+		Sub:     app_config.AzureSubscriptionId,
+		Context: context.Background(),
+	}
+}
+
 func Scan(app_config config.AppConfig, store *_storage.Storage) error {
-	sub := app_config.AzureSubscriptionId
-	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	log.Print("Scan Azure")
+
+	scan := NewScanAzure(app_config, store)
+
+	cred, err := scan.Cred()
 	if err != nil {
+		log.Printf("credential error %+v", err)
 		return err
 	}
-	ctx := context.Background()
 
-	if err := listBlobContainer(sub, ctx, cred, store); err != nil {
+	//if err := scan.ListBlobContainer(sub, ctx, cred, store); err != nil {
+	if err := scan.ListBlobContainer(cred, store); err != nil {
 		log.Printf("Azure Blob error %v", err)
 	}
 
 	return nil
 }
 
-func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredential, store *_storage.Storage) error {
-	subscriptionID := sub // os.Getenv("AZURE_SUBSCRIPTION_ID")
+func (scan *ScanAzure) Cred() (*azidentity.DefaultAzureCredential, error) {
+	if scan._cred != nil {
+		return scan._cred, nil
+	}
+
+	cred, err := azidentity.NewDefaultAzureCredential(nil)
+	if err != nil {
+		log.Printf("credential error %+v", err)
+		return nil, err
+	}
+	return cred, nil
+}
+
+func (scan *ScanAzure) ListBlobContainer(cred azcore.TokenCredential, store *_storage.Storage) error {
+	// func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredential, store *_storage.Storage) error {
+	subscriptionID := scan.Sub //sub // os.Getenv("AZURE_SUBSCRIPTION_ID")
 	resourceGroupName := "storage-resource-group"
 	storageAccountName := "ihasabucket"
 	blobContainerClient, err := armstorage.NewBlobContainersClient(subscriptionID, cred, nil)
@@ -40,7 +83,7 @@ func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredent
 	containerItemsPager := blobContainerClient.NewListPager(resourceGroupName, storageAccountName, nil)
 
 	for containerItemsPager.More() {
-		pageResp, err := containerItemsPager.NextPage(ctx)
+		pageResp, err := containerItemsPager.NextPage(scan.Context)
 		if err != nil {
 			return err
 		}
