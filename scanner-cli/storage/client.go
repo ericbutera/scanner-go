@@ -1,12 +1,12 @@
 // TODO check status200
-// TODO retry
 // TODO auth
-// TODO set retry, content-type json
+// TODO content-type json
 package storage
 
 import (
 	"fmt"
 	"log"
+	"scanner-go/retry"
 
 	"github.com/go-resty/resty/v2"
 )
@@ -30,6 +30,19 @@ type ScanResponse struct {
 }
 
 func (storage *Storage) Start() error {
+	// err := retry.Run(func() error {
+	// 	return storage._Start()
+	// })
+	err := retry.Run(storage._Start)
+
+	if err != nil {
+		log.Printf("storage-api start error %+v", err)
+	}
+
+	return nil
+}
+
+func (storage *Storage) _Start() error {
 	// TODO prevent multiple calls
 	data := &ScanResponse{}
 	_, err := storage.Rest.R().
