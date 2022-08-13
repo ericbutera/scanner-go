@@ -12,10 +12,16 @@ type AppConfig struct {
 	SecretKey           string `mapstructure:"secret_key"`
 	GCPServiceAccount   string `mapstructure:"gcp_service_account"`
 	AzureSubscriptionId string `mapstructure:"azure_subscription_id"`
+
+	DataDog     bool   `mapstructure:"data_dog" default:"false"`
+	AppName     string `mapstructure:"app_name" default:"Storage-CLI"`
+	ServiceName string `mapstructure:"service_name" default:"storage-cli"`
+	Env         string `mapstructure:"env" default:"dev"`
+	Version     string `mapstructure:"version" default:"0.0.1"`
 }
 
-func NewAppConfig(path string) (AppConfig, error) {
-	viper.AddConfigPath(path)
+func NewAppConfig(path *string) (AppConfig, error) {
+	viper.AddConfigPath(*path)
 	viper.SetConfigName("app.yaml")
 	viper.SetConfigType("yaml")
 	read_err := viper.ReadInConfig()

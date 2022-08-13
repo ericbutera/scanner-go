@@ -30,6 +30,6 @@ func Start(client *resty.Client) (string, error) {
 func End(client *resty.Client, id string) {
 	log.Print("finished")
 	// POST storage-api finish
-	resp, err := client.R().
-		Post("http://localhost:8080/scan/{id}/finish")
+	// resp, err := client.R().
+	// 	Post("http://localhost:8080/scan/{id}/finish")
 }

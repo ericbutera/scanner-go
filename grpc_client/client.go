@@ -11,7 +11,7 @@ import (
 
 func Client() {
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(*addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(*addr, grpc.WithInsecure()) // TODO add TLS
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
