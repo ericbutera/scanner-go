@@ -11,6 +11,7 @@ type AppConfig struct {
 	AccessKey           string `mapstructure:"access_key"`
 	SecretKey           string `mapstructure:"secret_key"`
 	GCPServiceAccount   string `mapstructure:"gcp_service_account"`
+	GCPProjectId        string `mapstructure:"gcp_project_id"`
 	AzureSubscriptionId string `mapstructure:"azure_subscription_id"`
 
 	DataDog     bool   `mapstructure:"data_dog" default:"false"`

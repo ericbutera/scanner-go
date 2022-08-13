@@ -13,14 +13,15 @@ import (
 	"google.golang.org/api/option"
 )
 
-func Scan(app_config config.AppConfig) {
-	creds := option.WithCredentialsFile(app_config.GCPServiceAccount)
+func Scan(conf config.AppConfig) {
+	creds := option.WithCredentialsFile(conf.GCPServiceAccount)
 	fmt.Printf("creds %+v", creds)
-	GetGCS(creds)
+	GetGCS(conf, creds)
 }
 
-func GetGCS(creds option.ClientOption) ([]string, error) {
-	projectID := "automatic-tract-356613"
+func GetGCS(conf config.AppConfig, creds option.ClientOption) ([]string, error) {
+	projectID := conf.GCPProjectId
+
 	// us-east1
 	// scanner-go-gcp
 	// https://console.cloud.google.com/storage/browser/scanner-go-gcp

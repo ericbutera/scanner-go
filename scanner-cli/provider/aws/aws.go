@@ -1,5 +1,6 @@
 // https://aws.amazon.com/
 // https://github.com/aws/aws-sdk-go-v2/tree/main/aws
+// TODO: https://github.com/DataDog/dd-trace-go/blob/v1.40.1/contrib/aws/aws-sdk-go/aws/example_test.go
 package aws
 
 import (

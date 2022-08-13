@@ -23,9 +23,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if app_conf.DataDog {
-		profile(app_conf)
-	}
+	profile(app_conf)
 
 	client := storage.NewClient()
 
@@ -47,14 +45,18 @@ func main() {
 }
 
 func profile(conf config.AppConfig) {
+	if !conf.DataDog {
+		return
+	}
+
 	log.Println("Starting profiler")
 	tracer.Start(
 		tracer.WithProfilerCodeHotspots(true),
 		tracer.WithProfilerEndpoints(true),
 		tracer.WithServiceName(conf.ServiceName),
 		tracer.WithEnv(conf.Env),
-		//tracer.WithServiceVersion(conf.Version),
-		// tracer.WithGlobalTag("app", conf.AppName),
+		tracer.WithServiceVersion(conf.Version),
+		tracer.WithGlobalTag("app", conf.AppName),
 	)
 	defer tracer.Stop()
 

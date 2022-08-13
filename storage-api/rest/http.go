@@ -36,8 +36,8 @@ func profile(config appconfig.AppConfig) {
 		tracer.WithProfilerEndpoints(true),
 		tracer.WithServiceName(config.ServiceName),
 		tracer.WithEnv(config.Env),
-		// tracer.WithServiceVersion(config.Version),
-		// tracer.WithGlobalTag("app", config.AppName),
+		tracer.WithServiceVersion(config.Version),
+		tracer.WithGlobalTag("app", config.AppName),
 	)
 	defer tracer.Stop()
 
