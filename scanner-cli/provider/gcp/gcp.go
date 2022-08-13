@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"scanner-go/config"
+	_storage "scanner-go/storage"
 	"time"
 
 	"cloud.google.com/go/storage"
@@ -13,13 +14,13 @@ import (
 	"google.golang.org/api/option"
 )
 
-func Scan(conf config.AppConfig) {
+func Scan(conf config.AppConfig, store *_storage.Storage) {
 	creds := option.WithCredentialsFile(conf.GCPServiceAccount)
 	fmt.Printf("creds %+v", creds)
-	GetGCS(conf, creds)
+	GetGCS(conf, creds, store)
 }
 
-func GetGCS(conf config.AppConfig, creds option.ClientOption) ([]string, error) {
+func GetGCS(conf config.AppConfig, creds option.ClientOption, store *_storage.Storage) ([]string, error) {
 	projectID := conf.GCPProjectId
 
 	// us-east1
@@ -49,6 +50,13 @@ func GetGCS(conf config.AppConfig, creds option.ClientOption) ([]string, error) 
 		}
 		buckets = append(buckets, battrs.Name)
 		fmt.Printf("Bucket: %v\n", battrs.Name)
+		//data := struct{ BucketName string }{BucketName: battrs.Name}
+		//bucket := struct{ BucketName string }{BucketName: battrs.Name}
+		bucket := map[string]interface{}{"BucketName": battrs.Name}
+		store.Save(&_storage.StorageData{
+			ScanId: "asdf",
+			Data:   bucket,
+		})
 	}
 	return buckets, nil
 }

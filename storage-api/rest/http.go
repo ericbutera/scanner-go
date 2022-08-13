@@ -11,7 +11,6 @@ import (
 )
 
 func Serve(config appconfig.AppConfig) {
-
 	r := gin.Default()
 
 	if config.DataDog {

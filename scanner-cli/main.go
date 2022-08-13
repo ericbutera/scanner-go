@@ -18,30 +18,31 @@ var (
 )
 
 func main() {
-	app_conf, err := config.NewAppConfig(config_path)
+	conf, err := config.NewAppConfig(config_path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	profile(app_conf)
+	profile(conf)
 
-	client := storage.NewClient()
+	store := storage.NewStorage()
 
-	scan_id, err := storage.Start(client)
+	scan_id, err := store.Start()
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("scan_id: %s\n", scan_id)
 
-	span := tracer.StartSpan("scanner")
-	defer span.Finish()
+	// TODO: learn how to make a wrapper https://github.com/DataDog/dd-trace-go/blob/v1.40.1/contrib/google.golang.org/api/api.go#L47
+	// span := tracer.StartSpan("scanner")
+	// defer span.Finish()
+	// span.Finish(tracer.WithError(err))
 
-	gcp.Scan(app_conf)
-	aws.Scan(app_conf)
-	azure.Scan(app_conf)
+	gcp.Scan(conf, store)
+	aws.Scan(conf)
+	azure.Scan(conf)
 
-	span.Finish(tracer.WithError(err))
-
-	storage.End(client, scan_id)
+	store.End()
 }
 
 func profile(conf config.AppConfig) {

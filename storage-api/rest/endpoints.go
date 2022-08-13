@@ -29,8 +29,22 @@ func Start(c *gin.Context) {
 	})
 }
 
+type StorageData struct {
+	ScanId string
+	Data   map[string]interface{}
+}
+
 func Save(c *gin.Context) {
 	id := c.Param("id")
+	var data StorageData
+	if err := c.BindJSON(&data); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "error parsing json",
+			"id":      id,
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "save",
 		"id":      id,

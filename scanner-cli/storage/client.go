@@ -1,5 +1,5 @@
 // TODO move to external project
-package client
+package storage
 
 import (
 	"log"
@@ -7,14 +7,22 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-func NewClient() *resty.Client {
-	return resty.New()
+type Storage struct {
+	Rest   *resty.Client
+	ScanId string
 }
 
-func Start(client *resty.Client) (string, error) {
+func NewStorage() *Storage { // *resty.Client {
+	return &Storage{
+		Rest: resty.New(),
+	}
+	//return resty.New()
+}
+
+func (storage *Storage) Start() (string, error) {
 	log.Print("started")
 
-	resp, err := client.R().
+	resp, err := storage.Rest.R().
 		EnableTrace().
 		Post("http://localhost:8080/scan/start")
 
@@ -27,9 +35,36 @@ func Start(client *resty.Client) (string, error) {
 	return data, err
 }
 
-func End(client *resty.Client, id string) {
+type StorageData struct {
+	ScanId string
+	Data   map[string]interface{}
+}
+
+// func NewStorageData(storage *Storage, data map[string]interface{}{}) *StorageData {
+// 	return &StorageData{
+// 		ScanId: storage.ScanId,
+// 		Data:   map[string]interface{}{},
+// 	}
+// }
+
+func (storage *Storage) Save(data *StorageData) (string, error) {
+	log.Print("saved")
+	resp, err := storage.Rest.R().
+		EnableTrace().
+		SetBody(data).
+		Post("http://localhost:8080/scan/{id}/save")
+
+	body := resp.String()
+	return body, err
+}
+
+func (storage *Storage) End() (data string, err error) {
 	log.Print("finished")
 	// POST storage-api finish
-	// resp, err := client.R().
-	// 	Post("http://localhost:8080/scan/{id}/finish")
+	resp, err := storage.Rest.R().
+		EnableTrace().
+		Post("http://localhost:8080/scan/{id}/finish")
+
+	data = resp.String()
+	return data, err
 }
