@@ -1,9 +1,16 @@
-# Cloud Scanner (golang edition)
+# Scanner (golang edition)
 
-## Scanner CLI
+Learning some golang.
+
+## CLI
 
 [Scanner CLI](./scanner-cli)
 
-## Scanner Storage API
+## Storage API
 
 [Scanner Storage API](./storage-api)
+
+## Goals
+
+- learn gRPC
+- learn go
