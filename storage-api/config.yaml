@@ -1,5 +1,0 @@
-data_dog: false
-app_name: Storage-API
-service_name: scanner-api
-env: dev
-version: 0.0.1
