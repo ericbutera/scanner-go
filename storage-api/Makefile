@@ -33,6 +33,10 @@ test:
 run:
 	go run ${MAIN}
 
+.PHONY: docs
+dogs:
+	swag init
+
 .PHONY: protoc
 protoc:
 	protoc --go_out=. \

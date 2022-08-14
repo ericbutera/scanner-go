@@ -8,8 +8,15 @@ import (
 	gintrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
 	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 	"gopkg.in/DataDog/dd-trace-go.v1/profiler"
+
+	_ "storage-api/docs"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Storage API
+// @BasePath /
 func Serve(config appconfig.AppConfig) {
 	r := gin.Default()
 
@@ -18,6 +25,7 @@ func Serve(config appconfig.AppConfig) {
 		r.Use(gintrace.Middleware(config.AppName))
 	}
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.GET("/", Docs)
 	r.GET("/health", Health)
 	r.POST("/scan/start", Start)
@@ -47,7 +55,8 @@ func profile(config appconfig.AppConfig) {
 		profiler.WithEnv(config.Env),
 		profiler.WithVersion(config.Version),
 		profiler.WithTags("api"),
-		profiler.WithProfileTypes(profiler.CPUProfile, profiler.HeapProfile, profiler.BlockProfile, profiler.MutexProfile),
+		profiler.WithProfileTypes(profiler.CPUProfile, profiler.HeapProfile), //profiler.BlockProfile, profiler.MutexProfile
+
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -1,5 +1,10 @@
 # Storage API
 
+## Docs
+
+- Generate using `make docs`
+- [View](http://localhost:8080/swagger/index.html)
+
 ## Goals
 
 - Ability to replay processing of raw data

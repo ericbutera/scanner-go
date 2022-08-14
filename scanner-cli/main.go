@@ -74,10 +74,11 @@ func profile(conf config.AppConfig) {
 		profiler.WithEnv(conf.Env),
 		profiler.WithVersion(conf.Version),
 		profiler.WithTags("cli"),
-		profiler.WithProfileTypes(profiler.CPUProfile, profiler.HeapProfile, profiler.BlockProfile, profiler.MutexProfile),
+		profiler.WithProfileTypes(profiler.CPUProfile, profiler.HeapProfile), //profiler.BlockProfile, profiler.MutexProfile
 	)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer profiler.Stop()
+	log.Printf("profiler started")
 }
