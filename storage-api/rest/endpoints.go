@@ -5,7 +5,6 @@
 package rest
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,12 +37,12 @@ type SaveResponse struct {
 	JobId uuid.UUID `description:"Unique identifier for the saved data" json:"jobId"`
 }
 
-func Docs(c *gin.Context) {
-	c.Redirect(http.StatusMovedPermanently, swaggerUri)
-}
-
 type HealthResponse struct {
 	Base
+}
+
+func (app *App) Docs(c *gin.Context) {
+	c.Redirect(http.StatusMovedPermanently, swaggerUri)
 }
 
 // Health check
@@ -54,7 +53,7 @@ type HealthResponse struct {
 // @Produce json
 // @Success 200 {object} HealthResponse
 // @Router /health [get]
-func Health(c *gin.Context) {
+func (app *App) Health(c *gin.Context) {
 	c.JSON(http.StatusOK, HealthResponse{
 		Base: Base{Message: "alive"},
 	})
@@ -68,7 +67,7 @@ func Health(c *gin.Context) {
 // @Produce json
 // @Success 200 {object} StartResponse
 // @Router /scan/start [post]
-func Start(c *gin.Context) {
+func (app *App) Start(c *gin.Context) {
 	id := uuid.New()
 	c.JSON(http.StatusOK, &StartResponse{
 		Base: Base{Message: "Session started"},
@@ -88,11 +87,11 @@ func Start(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Router /scan/{id}/save [post]
-func Save(c *gin.Context) {
+func (app *App) Save(c *gin.Context) {
 	id := c.Param("id")
 	var data SaveRequest
 
-	log.Printf("saving scan %s %+v", id, data)
+	app.Sugar.Infow("saving scan", "id", id)
 
 	// TODO: 404 id not found
 
@@ -118,9 +117,9 @@ func Save(c *gin.Context) {
 // @Success 200 {Base} Base
 // @Failure 404 {object} ErrorResponse
 // @Router /scan/{id}/finish [post]
-func Finish(c *gin.Context) {
+func (app *App) Finish(c *gin.Context) {
 	id := c.Param("id")
-	log.Printf("finishing scan %s", id)
+	app.Sugar.Infow("finish scan", "id", id)
 
 	// TODO: 404 id not found
 
