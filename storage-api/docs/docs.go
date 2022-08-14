@@ -16,6 +16,26 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/health": {
+            "get": {
+                "description": "Health check",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Health check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/rest.HealthResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/scan/start": {
             "post": {
                 "description": "Start a scan session",
@@ -128,6 +148,14 @@ const docTemplate = `{
                 "code": {
                     "type": "integer"
                 },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "rest.HealthResponse": {
+            "type": "object",
+            "properties": {
                 "message": {
                     "type": "string"
                 }

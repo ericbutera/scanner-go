@@ -1,5 +1,6 @@
 // TODO: https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
 // example: https://github.com/swaggo/swag/blob/master/example/celler/controller/accounts.go
+// examples: https://github.com/swaggo/swag/tree/master/example
 
 package rest
 
@@ -10,6 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+const swaggerUri = "/swagger/index.html"
 
 type Base struct {
 	Message string `json:"message"`
@@ -36,15 +39,28 @@ type SaveResponse struct {
 }
 
 func Docs(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message":   "alive",
-		"endpoints": []string{"/health"},
-	})
+	// c.JSON(http.StatusOK, gin.H{
+	// 	"message":   "alive",
+	// 	"endpoints": []string{"/health"},
+	// })
+	c.Redirect(http.StatusMovedPermanently, swaggerUri)
 }
 
+type HealthResponse struct {
+	Base
+}
+
+// Health check
+// @Summary Health check
+// @Schemes
+// @Description Health check
+// @Accept json
+// @Produce json
+// @Success 200 {object} HealthResponse
+// @Router /health [get]
 func Health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "alive",
+	c.JSON(http.StatusOK, HealthResponse{
+		Base: Base{Message: "alive"},
 	})
 }
 
@@ -88,10 +104,6 @@ func Save(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, ErrorResponse{
 			Base: Base{Message: "Invalid request"},
 		})
-		// c.JSON(http.StatusBadRequest, gin.H{
-		// 	"message": "error parsing json",
-		// 	"id":      id,
-		// })
 		return
 	}
 
@@ -99,11 +111,6 @@ func Save(c *gin.Context) {
 		Base:  Base{Message: "Data saved"},
 		JobId: uuid.New(),
 	})
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message": "save",
-	// 	"id":      id,
-	// 	"jobId":   uuid.New(),
-	// })
 }
 
 // Finish a scan session
@@ -124,8 +131,4 @@ func Finish(c *gin.Context) {
 	c.JSON(http.StatusOK, Base{
 		Message: "Session finished",
 	})
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message": "finish",
-	// 	"id":      id,
-	// })
 }
