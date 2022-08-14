@@ -54,11 +54,6 @@ func GetS3(cfg aws.Config, store *_storage.Storage) error {
 
 	// output={"CommonPrefixes":null,"Contents":[{"ChecksumAlgorithm":null,"ETag":"\"135..."","Key":"file-name.txt","LastModified":"2022-07-31T23:42:34Z","Owner":null,"Size":19,"StorageClass":"STANDARD"}],"ContinuationToken":null,"Delimiter":null,"EncodingType":"","IsTruncated":false,"KeyCount":1,"MaxKeys":1000,"Name":"bucket-name","NextContinuationToken":null,"Prefix":"","StartAfter":null,"ResultMetadata":{}}
 
-	log.Println("first page results:")
-	// for _, object := range output.Contents {
-	// 	log.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
-	// }
-
 	store.Save(store.NewStorageData(output))
 
 	return nil

@@ -21,15 +21,7 @@ type ScanAzure struct {
 	_cred   *azidentity.DefaultAzureCredential
 }
 
-//func (scan *ScanAzure) NewScanAzure(app_config config.AppConfig, store *_storage.Storage) *ScanAzure {
 func NewScanAzure(app_config config.AppConfig, store *_storage.Storage) *ScanAzure {
-	//sub := app_config.AzureSubscriptionId
-	// cred, err := azidentity.NewDefaultAzureCredential(nil)
-	// if err != nil {
-	// 	return err
-	// }
-	//ctx := context.Background()
-
 	return &ScanAzure{
 		Config:  &app_config,
 		Store:   store,
@@ -49,7 +41,6 @@ func Scan(app_config config.AppConfig, store *_storage.Storage) error {
 		return err
 	}
 
-	//if err := scan.ListBlobContainer(sub, ctx, cred, store); err != nil {
 	if err := scan.ListBlobContainer(cred, store); err != nil {
 		log.Printf("Azure Blob error %v", err)
 	}
@@ -71,8 +62,7 @@ func (scan *ScanAzure) Cred() (*azidentity.DefaultAzureCredential, error) {
 }
 
 func (scan *ScanAzure) ListBlobContainer(cred azcore.TokenCredential, store *_storage.Storage) error {
-	// func listBlobContainer(sub string, ctx context.Context, cred azcore.TokenCredential, store *_storage.Storage) error {
-	subscriptionID := scan.Sub //sub // os.Getenv("AZURE_SUBSCRIPTION_ID")
+	subscriptionID := scan.Sub
 	resourceGroupName := "storage-resource-group"
 	storageAccountName := "ihasabucket"
 	blobContainerClient, err := armstorage.NewBlobContainersClient(subscriptionID, cred, nil)
