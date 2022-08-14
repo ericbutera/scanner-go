@@ -76,26 +76,39 @@ func (storage *Storage) NewStorageData(data any) *StorageData {
 	}
 }
 
-func (storage *Storage) Save(data *StorageData) (string, error) {
+func (storage *Storage) Save(data *StorageData) error {
+	err := retry.Run("storage-api-save", func() error {
+		return storage._Save(data)
+	})
+
+	if err != nil {
+		log.Printf("storage-api start error %+v", err)
+	}
+
+	return err
+}
+
+func (storage *Storage) _Save(data *StorageData) error {
 	resp, err := storage.Rest.R().
 		EnableTrace().
 		SetBody(data).
 		Post(fmt.Sprintf("%s/scan/%s/save", storage.BaseUrl, storage.ScanId))
 
-	body := resp.String()
-	log.Print("save response ", body)
+	log.Print("save response ", resp.String())
 
-	return body, err
+	return err
 }
 
-func (storage *Storage) End() (data string, err error) {
-	// POST storage-api finish
+func (storage *Storage) End() error {
+	return retry.Run("storage-api-end", storage._End)
+}
+
+func (storage *Storage) _End() error {
 	resp, err := storage.Rest.R().
 		EnableTrace().
 		Post(fmt.Sprintf("%s/scan/%s/finish", storage.BaseUrl, storage.ScanId))
 
-	body := resp.String()
-	log.Print("end response ", body)
+	log.Print("end response ", resp.String())
 
-	return data, err
+	return err
 }

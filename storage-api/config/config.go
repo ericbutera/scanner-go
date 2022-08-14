@@ -11,7 +11,9 @@ import (
 // Application Configuration
 type AppConfig struct {
 	// Enable DataDog integration
-	DataDog     bool   `mapstructure:"data_dog"`
+	DataDog       bool   `mapstructure:"data_dog"`
+	DataDogApiKey string `mapstructure:"data_dog_api_key"`
+
 	Port        string `mapstructure:"port"`
 	AppName     string `mapstructure:"app_name" default:"Storage-API"`
 	ServiceName string `mapstructure:"service_name" default:"storage-api"`

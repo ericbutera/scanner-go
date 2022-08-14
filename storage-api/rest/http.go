@@ -37,10 +37,12 @@ func profile(config appconfig.AppConfig) {
 		tracer.WithEnv(config.Env),
 		tracer.WithServiceVersion(config.Version),
 		tracer.WithGlobalTag("app", config.AppName),
+		tracer.WithAnalytics(true),
 	)
 	defer tracer.Stop()
 
 	err := profiler.Start(
+		profiler.WithAPIKey(config.DataDogApiKey),
 		profiler.WithService(config.ServiceName),
 		profiler.WithEnv(config.Env),
 		profiler.WithVersion(config.Version),

@@ -64,10 +64,12 @@ func profile(conf config.AppConfig) {
 		tracer.WithEnv(conf.Env),
 		tracer.WithServiceVersion(conf.Version),
 		tracer.WithGlobalTag("app", conf.AppName),
+		tracer.WithAnalytics(true),
 	)
 	defer tracer.Stop()
 
 	err := profiler.Start(
+		profiler.WithAPIKey(conf.DataDogApiKey),
 		profiler.WithService(conf.ServiceName),
 		profiler.WithEnv(conf.Env),
 		profiler.WithVersion(conf.Version),

@@ -7,6 +7,9 @@ package retry
 // Non-http specific implementation; should work with anything that can fail
 //
 // Solid implementation: https://github.com/aws/aws-sdk-go-v2/blob/v1.16.11/aws/retry/standard.go
+// https://github.com/eapache/go-resiliency
+// https://gobyexample.com/rate-limiting
+// https://gobyexample.com/timeouts
 
 import (
 	"context"
@@ -34,6 +37,7 @@ func Run(operationName string, fn Retryable) error {
 	b := backoff.WithContext(expo, ctx)
 
 	span := tracer.StartSpan(operationName)
+	span.SetTag("operation", operationName)
 	defer span.Finish()
 	err := backoff.Retry(operation, b)
 	span.Finish(tracer.WithError(err))

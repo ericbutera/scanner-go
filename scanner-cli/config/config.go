@@ -17,8 +17,10 @@ type AppConfig struct {
 	GCPProjectId        string `mapstructure:"gcp_project_id"`
 	AzureSubscriptionId string `mapstructure:"azure_subscription_id"`
 
-	// DataDog profiling; use ENV DD_API_KEY for the api key
-	DataDog     bool   `mapstructure:"data_dog"`
+	// DataDog profiling
+	DataDog       bool   `mapstructure:"data_dog"`
+	DataDogApiKey string `mapstructure:"data_dog_api_key"`
+
 	AppName     string `mapstructure:"app_name"`
 	ServiceName string `mapstructure:"service_name"`
 	Env         string `mapstructure:"env"`
