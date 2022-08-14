@@ -39,10 +39,6 @@ type SaveResponse struct {
 }
 
 func Docs(c *gin.Context) {
-	// c.JSON(http.StatusOK, gin.H{
-	// 	"message":   "alive",
-	// 	"endpoints": []string{"/health"},
-	// })
 	c.Redirect(http.StatusMovedPermanently, swaggerUri)
 }
 
