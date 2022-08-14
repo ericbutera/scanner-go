@@ -26,3 +26,4 @@ go.work
 .DS_Store
 bin/*
 __debug_bin
+*.yaml

@@ -3,6 +3,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/viper"
 )
@@ -33,5 +34,7 @@ func NewAppConfig(path *string, file *string) (AppConfig, error) {
 	if parse_err != nil {
 		panic(fmt.Errorf("cannot parse config %s", parse_err))
 	}
+
+	log.Printf("config %+v", config)
 	return config, parse_err
 }

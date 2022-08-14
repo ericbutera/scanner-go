@@ -30,16 +30,19 @@ type ScanResponse struct {
 }
 
 func (storage *Storage) Start() error {
+	// example of multiple return values from the retry function
 	// err := retry.Run(func() error {
-	// 	return storage._Start()
+	// 	id, _err := storage._Start()
+	// 	log.Printf("storage-api start id %s err %v", id, _err)
+	// 	return _err
 	// })
-	err := retry.Run(storage._Start)
+	err := retry.Run("storage-api-start", storage._Start)
 
 	if err != nil {
 		log.Printf("storage-api start error %+v", err)
 	}
 
-	return nil
+	return err
 }
 
 func (storage *Storage) _Start() error {
@@ -56,7 +59,7 @@ func (storage *Storage) _Start() error {
 	}
 
 	log.Printf("storage-api start response %+v", data)
-	storage.ScanId = data.Id
+	storage.ScanId = data.Id // <-- no return value necessary as id is set on storage
 
 	return nil
 }
