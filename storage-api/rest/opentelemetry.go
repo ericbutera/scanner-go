@@ -4,10 +4,8 @@
 package rest
 
 import (
-	"context"
 	"log"
 	appconfig "storage-api/config"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
@@ -15,8 +13,8 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
 	"go.opentelemetry.io/otel/sdk/resource"
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
 func initOpenTel(config appconfig.AppConfig, r *gin.Engine) {
@@ -25,54 +23,54 @@ func initOpenTel(config appconfig.AppConfig, r *gin.Engine) {
 		log.Fatal(err)
 	}
 
-	// Register our TracerProvider as the global so any imported
-	// instrumentation in the future will default to using it.
-	otel.SetTracerProvider(tp)
+	// TODO: something about this doesn't work:
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
+	// // Cleanly shutdown and flush telemetry when the application exits.
+	// defer func(ctx context.Context) {
+	// 	// Do not make the application hang when it is shutdown.
+	// 	ctx, cancel = context.WithTimeout(ctx, time.Second*5)
+	// 	defer cancel()
+	// 	if err := tp.Shutdown(ctx); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }(ctx)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	//tr := tp.Tracer(config.ServiceName)
+	// ctx, span := tr.Start(ctx, "foo")
+	// defer span.End()
 
-	// Cleanly shutdown and flush telemetry when the application exits.
-	defer func(ctx context.Context) {
-		// Do not make the application hang when it is shutdown.
-		ctx, cancel = context.WithTimeout(ctx, time.Second*5)
-		defer cancel()
-		if err := tp.Shutdown(ctx); err != nil {
-			log.Fatal(err)
-		}
-	}(ctx)
-
-	tr := tp.Tracer(config.ServiceName)
-
-	ctx, span := tr.Start(ctx, "foo")
-	defer span.End()
-
-	r.Use(otelgin.Middleware(config.AppName))
+	r.Use(otelgin.Middleware(config.AppName, otelgin.WithTracerProvider(tp)))
 }
 
 // tracerProvider returns an OpenTelemetry TracerProvider configured to use
 // the Jaeger exporter that will send spans to the provided url. The returned
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
-func openTelProvider(config appconfig.AppConfig) (*tracesdk.TracerProvider, error) {
-	url := "http://localhost:14268/api/traces"
+func openTelProvider(config appconfig.AppConfig) (*sdktrace.TracerProvider, error) {
+	url := "http://127.0.0.1:14268/api/traces"
 
 	// Create the Jaeger exporter
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
 	if err != nil {
 		return nil, err
 	}
-	tp := tracesdk.NewTracerProvider(
+	tp := sdktrace.NewTracerProvider(
 		// Always be sure to batch in production.
-		tracesdk.WithSampler(tracesdk.AlwaysSample()),
-		tracesdk.WithBatcher(exp),
+		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithBatcher(exporter),
 		// Record information about this application in a Resource.
-		tracesdk.WithResource(resource.NewWithAttributes(
+		sdktrace.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,
 			semconv.ServiceNameKey.String(config.AppName),
 			attribute.String("environment", config.Env),
-			attribute.Int64("ID", 123),
 		)),
 	)
+
+	// Register our TracerProvider as the global so any imported
+	// instrumentation in the future will default to using it.
+	otel.SetTracerProvider(tp)
+	// otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
 	return tp, nil
 }
