@@ -32,6 +32,21 @@ help:
 image-build:
 	docker build -t ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG} .
 
+.PHONY: image-buildx
+image-buildx:
+	docker buildx create --name=${IMAGE_NAME}_builder \
+	--driver-opt network=host --use \
+	&&
+	docker buildx inspect --bootstrap \
+	&&
+	docker buildx build \
+	--platform linux/arm64/v8,linux/amd64 \
+	--tag ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG} .
+
+.PHONY: image-buildx-rm
+image-buildx-rm:
+	docker buildx rm ${IMAGE_NAME}_builder
+
 .PHONY: image-push
  image-push:
 	docker push ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -41,7 +56,7 @@ image-build:
 	docker run ${IMAGE_NAME}:${IMAGE_TAG}
 
 .PHONY: image-run
- image-run-local:
+ image-run:
 	docker run ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG}
 
 
