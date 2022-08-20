@@ -1,6 +1,10 @@
-// TODO: https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
-// example: https://github.com/swaggo/swag/blob/master/example/celler/controller/accounts.go
-// examples: https://github.com/swaggo/swag/tree/master/example
+// TODO:
+// rate limit
+// - https://github.com/uber-go/ratelimit
+// - https://github.com/axiaoxin-com/ratelimiter
+// Api key
+//
+// swagger notes: https://github.com/swaggo/swag/blob/master/README.md#declarative-comments-format
 
 package rest
 
