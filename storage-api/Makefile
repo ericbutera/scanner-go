@@ -1,4 +1,4 @@
-VERSION=0.0.2
+VERSION=0.0.4 # TODO: figure out automation
 MAIN=main.go
 IMAGE_NAME=storage-api
 IMAGE_REPO=ericbutera
@@ -35,10 +35,10 @@ image-build:
 .PHONY: image-buildx
 image-buildx:
 	docker buildx create --name=${IMAGE_NAME}_builder \
-	--driver-opt network=host --use \
-	&&
-	docker buildx inspect --bootstrap \
-	&&
+	--driver-opt network=host --use
+
+	docker buildx inspect --bootstrap
+
 	docker buildx build \
 	--platform linux/arm64/v8,linux/amd64 \
 	--tag ${IMAGE_REPO}/${IMAGE_NAME}:${IMAGE_TAG} .
