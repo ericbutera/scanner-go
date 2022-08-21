@@ -1,0 +1,19 @@
+# TODO: helm chart
+# this is for my local tests, not intented for production
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: storage-api
+  # namespace: api-service
+spec:
+  rules:
+  - host: storage-api.k8s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: storage-api
+            port:
+              number: 8080

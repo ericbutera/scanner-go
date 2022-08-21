@@ -31,7 +31,7 @@ func Serve(config appconfig.AppConfig) {
 	app := &App{}
 
 	// r.Use(requestid.New())
-	logger(config, r, app)
+	initLogger(config, r, app)
 	initDataDog(config, r)
 	initOpenTel(config, r)
 
@@ -46,7 +46,7 @@ func Serve(config appconfig.AppConfig) {
 	r.Run()
 }
 
-func logger(config appconfig.AppConfig, r *gin.Engine, app *App) {
+func initLogger(config appconfig.AppConfig, r *gin.Engine, app *App) {
 	// TODO: NewProduction()
 	logger, err := zap.NewDevelopment()
 	defer logger.Sync()
