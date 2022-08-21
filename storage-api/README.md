@@ -1,5 +1,7 @@
 # Storage API
 
+This is a project I am using to learn about cloud orchestration.
+
 ## Docs
 
 - Generate using `make docs`
@@ -8,10 +10,15 @@
 ## Goals
 
 - Ability to replay processing of raw data
-- fast storage of raw scanner data
+- fast storage of raw scanner data (this might happen in a different [project](https://github.com/ericbutera/airflow-instance) now.)
 - /docs use <https://github.com/swaggo/gin-swagger>
 - gRPC communication (premature optimization)
   - [gin gRPC example](https://github.com/gin-gonic/examples/blob/master/grpc/gin/main.go)
+- telemetry and observability
+  - see what is available in jaeger and how it compares to DataDog
+  - see what can be orchestrated within a k8s cluster (service mesh offers this for free)
+- helm chart
+  - configuration in k8s?
 
 ## Development Log
 
@@ -23,8 +30,19 @@
 
 - collect raw data
 - store in _unified log_ (from event streams in action)
+- deploy with kubernetes
 
-## Kubernetes + Telepresence
+## Kubernetes
+
+One of the interesting issues I ran into here was container architecture. Docker has created a `buildx` [plugin](https://docs.docker.com/build/buildx/) to help support multi-architecture build support. When I created the image on my M1 (arm64) it didn't work on my linux k8s host (amd64).
+
+### Deployment
+
+I created some scattered specs in the kubernetes directory. These are enough to deploy the storage-api app inside k8s. Next step will be to create a helm chart.
+
+### Telepresence
+
+A major goal for this project is to be able to debug the microservice on my local machine instead of deploying to the cluster to see changes. Telepresence is an easy way to accomplish this.
 
 - [telepresence intercepts](https://www.telepresence.io/docs/v2.0/howtos/intercepts/)
 
@@ -35,6 +53,8 @@ telepresence intercept storage-api --port 8080 --env-file ~/tmp/storage-api-inte
 # run service locally
 make run # or use vscode debugger for live debugging!
 ```
+
+Note: the intercepts became stuck and a `killall telepresence` fixed the issue.
 
 ## Telemetry
 
