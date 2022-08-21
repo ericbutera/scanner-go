@@ -1,0 +1,27 @@
+# TODO: helm chart
+# following https://www.bogotobogo.com/GoLang/GoLang_Web_Building_Docker_Image_and_Deploy_to_Kubernetes.php
+# this is for dev testing only
+# kubectl expose deployment storage-api --type=NodePort --name=storage-api --target-port=8080
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storage-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage-api
+  template:
+    metadata:
+      labels:
+        app: storage-api
+    spec:
+      containers:
+      - name: storage-api
+        image: ericbutera/storage-api:0.0.3
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 8080
