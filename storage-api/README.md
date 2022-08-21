@@ -24,6 +24,18 @@
 - collect raw data
 - store in _unified log_ (from event streams in action)
 
+## Kubernetes + Telepresence
+
+- [telepresence intercepts](https://www.telepresence.io/docs/v2.0/howtos/intercepts/)
+
+```sh
+# microk8s running @ https://storage-api.k8s
+# telepresence will route traffic to laptop instead of k8s service:
+telepresence intercept storage-api --port 8080 --env-file ~/tmp/storage-api-intercept.env
+# run service locally
+make run # or use vscode debugger for live debugging!
+```
+
 ## Telemetry
 
 ### Jaeger
