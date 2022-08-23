@@ -4,25 +4,24 @@ package cmd
 import (
 	"log"
 
+	"scanner-go/cmd/command"
+	"scanner-go/config"
+
 	"github.com/spf13/cobra"
 )
 
+// var (
+// 	globalFlags = command.GlobalFlags{}
+// )
+
 var (
-	testFlagName string
+	conf    = &config.AppConfig{}
+	cfgFile string
 
 	rootCmd = &cobra.Command{
 		Use:   "scan",
 		Short: "Scan for resources",
 		Long:  "Scan for resources",
-	}
-
-	scanCmd = &cobra.Command{
-		Use:   "scan",
-		Short: "scan for resources",
-		Long:  "scan for resources",
-		Run: func(cmd *cobra.Command, args []string) {
-			log.Print("scan command!")
-		},
 	}
 )
 
@@ -34,9 +33,13 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-
-	rootCmd.AddCommand(scanCmd)
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "app.yml", "config file")
+	rootCmd.AddCommand(command.NewScan(conf))
 }
 
 func initConfig() {
+	err := config.Load(cfgFile, conf)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
