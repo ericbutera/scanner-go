@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"log"
+	"scanner-go/cmd"
 	"scanner-go/config"
 	"scanner-go/provider/aws"
 	"scanner-go/provider/azure"
@@ -18,6 +19,10 @@ var (
 )
 
 func main() {
+	cmd.Execute()
+}
+
+func main2() {
 	conf, err := config.NewAppConfig(config_path)
 	if err != nil {
 		log.Fatal(err)
