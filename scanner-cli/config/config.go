@@ -1,9 +1,6 @@
 package config
 
 import (
-	"fmt"
-	"log"
-
 	"github.com/spf13/viper"
 )
 
@@ -33,11 +30,35 @@ type AppConfig struct {
 	StorageApiUrl string `mapstructure:"storage_api_url"`
 }
 
-func NewAppConfig(path *string) (AppConfig, error) {
-	viper.AddConfigPath(*path)
-	viper.SetConfigName("app.yaml")
+func Load(path string, conf *AppConfig) error {
+	Defaults()
+
+	viper.SetConfigFile(path)
 	viper.SetConfigType("yaml")
 
+	if err := viper.ReadInConfig(); err != nil {
+		return err
+	}
+
+	if err := viper.Unmarshal(conf); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewAppConfig(path string) (*AppConfig, error) {
+	Defaults()
+
+	config := &AppConfig{}
+	if err := Load(path, config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
+func Defaults() {
 	viper.SetDefault("storage_api_url", "http://localhost:8080")
 	viper.SetDefault("app_name", "Storage-CLI")
 	viper.SetDefault("service_name", "storage-cli")
@@ -46,19 +67,4 @@ func NewAppConfig(path *string) (AppConfig, error) {
 	viper.SetDefault("aws", false)
 	viper.SetDefault("azure", false)
 	viper.SetDefault("gcp", false)
-
-	read_err := viper.ReadInConfig()
-	if read_err != nil {
-		panic(fmt.Errorf("fatal error config file: %w", read_err))
-	}
-
-	var config AppConfig
-	parse_err := viper.Unmarshal(&config)
-	if parse_err != nil {
-		panic(fmt.Errorf("cannot parse config %s", parse_err))
-	}
-
-	log.Printf("config %+v", config)
-
-	return config, parse_err
 }

@@ -14,7 +14,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func Scan(conf config.AppConfig, store *_storage.Storage) error {
+func Scan(conf *config.AppConfig, store *_storage.Storage) error {
 	log.Print("Scan GCP")
 
 	creds := option.WithCredentialsFile(conf.GCPServiceAccount)
@@ -30,7 +30,7 @@ func Scan(conf config.AppConfig, store *_storage.Storage) error {
 }
 
 // Google Cloud Storage
-func GCS(conf config.AppConfig, creds option.ClientOption, store *_storage.Storage) error {
+func GCS(conf *config.AppConfig, creds option.ClientOption, store *_storage.Storage) error {
 	// it, err := GetGCS(conf, creds, store) // TODO
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx, creds)

@@ -15,7 +15,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-func Scan(app_config appconfig.AppConfig, store *_storage.Storage) error {
+func Scan(app_config *appconfig.AppConfig, store *_storage.Storage) error {
 	log.Print("Scan Aws")
 
 	aws_cfg, err := NewCredsFromAppConfig(app_config)
@@ -32,7 +32,7 @@ func Scan(app_config appconfig.AppConfig, store *_storage.Storage) error {
 	return nil
 }
 
-func NewCredsFromAppConfig(app_config appconfig.AppConfig) (aws.Config, error) {
+func NewCredsFromAppConfig(app_config *appconfig.AppConfig) (aws.Config, error) {
 	// region := config.WithRegion("us-east-1")
 	region := config.WithRegion(app_config.Region)
 

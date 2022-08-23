@@ -21,16 +21,16 @@ type ScanAzure struct {
 	_cred   *azidentity.DefaultAzureCredential
 }
 
-func NewScanAzure(app_config config.AppConfig, store *_storage.Storage) *ScanAzure {
+func NewScanAzure(app_config *config.AppConfig, store *_storage.Storage) *ScanAzure {
 	return &ScanAzure{
-		Config:  &app_config,
+		Config:  app_config,
 		Store:   store,
 		Sub:     app_config.AzureSubscriptionId,
 		Context: context.Background(),
 	}
 }
 
-func Scan(app_config config.AppConfig, store *_storage.Storage) error {
+func Scan(app_config *config.AppConfig, store *_storage.Storage) error {
 	log.Print("Scan Azure")
 
 	scan := NewScanAzure(app_config, store)
